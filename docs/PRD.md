@@ -1,0 +1,153 @@
+# About This Project
+
+Twinkl is an academic capstone project for the **NUS Master of Technology in Intelligent Systems (AI Systems)** program, with an expected duration of 6–9 months. The project spans multiple submodules including Intelligent Reasoning Systems, Pattern Recognition Systems, Intelligent Sensing Systems, and Architecting AI Systems. For additional context and presentation materials, see [IS_Capstone_Slides.pdf](IS_Capstone_Slides.pdf).
+
+---
+
+# Elevator Pitch
+
+* **Working name:** Twinkl — a long-horizon, voice-first “inner compass.”
+* **What:** Voice notes and typed reflections feed a living user model (values, identity themes, north star) that mirrors back where behaviour diverges from intent; it is not another “feel-better” journal.
+* **Promise:** Honest, explainable alignment check-ins that combine deep introspection with accountability so users stop drifting from their declared priorities.
+* **Capstone hook:** Multimodal sensing + pattern recognition + hybrid reasoning + explainable UX → direct throughline to all submodules.
+* **Key properties:** Dynamic self-model that updates gradually, identity treated as slowly evolving, value-alignment questions over dopamine loops.
+
+# Pain Point(s) it solves & Target Users
+
+* **Pain points**
+    * Ambitious people articulate values (health, family, creativity) yet their weeks quietly fill with conflicting work, doomscrolling, or obligation; very few tools hold up a mirror to that drift.
+    * Typing-heavy journaling dies off; voice notes and light prompts match how people naturally reflect, but current apps stay at mood-tracking or streak mechanics.
+    * Users crave kind accountability—context-aware reflections that cite evidence—while commercial products optimise for dopamine loops, not truth.
+* **Target users / addressable market**
+    * Knowledge workers in transition (grad students, new managers, founders) and high-agency professionals managing career-family-growth trade-offs—large cohorts already paying for journaling + coaching, yet underserved by static apps.
+    * Pick 1–2 personas for the capstone run; each provides rich, recurring scenarios to evaluate alignment/misalignment feedback.
+
+# Difference vs commercial peers
+
+AI journaling apps (Reflection, Mindsera, Insight Journal, Day One, Pixel Journal) summarise moods and trends yet treat every entry as an isolated blob; voice-first tools (Lid, REDI, Rosebud) transcribe speech but still optimise for wellness insights, not value alignment. None maintain a dynamic, explainable self-model that challenges users when their actions contradict their stated direction—leaving a white space for people already paying for coaching or multiple journaling subscriptions.
+
+| Feature                | Scenario A: Current AI Journals (The "Summarizer")                                                                                                                                                                | Scenario B: Twinkl (The "Alignment Engine")                                                                                                                                                                       |
+| :--------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Core Premise**       | **Starts with a "Blank Slate."** Knowledge is built *only* from the entries as they come in.                                                                                                                      | **Starts with a "Self-Model."** The user first defines their core values, goals, and priorities during onboarding.                                                                                                |
+| **Example Self-Model** | *None exists.*                                                                                                                                                                                                    | **Value 1:** "My health is my foundation." **Value 2:** "My relationship is my anchor." **Priority 1:** "The 'Project X' at work is my focus this month."                                                         |
+| **User Entries**       | *(Constant for both scenarios)*  1\. "So stressed, the big project at work is derailing everything." 2\. "Skipped the gym again... feel guilty." 3\. "Had a nice dinner with my partner, which was a good break." | *(Constant for both scenarios)*  1\. "So stressed, the big project at work is derailing everything." 2\. "Skipped the gym again... feel guilty." 3\. "Had a nice dinner with my partner, which was a good break." |
+
+* **Alignment engine:** Weekly reasoning compares lived behaviour vs. declared priorities, surfaces tensions, and cites evidence snippets—turning “you said X but did Y” into actionable prompts.
+* **Explainable accountability:** Every nudge shows why (phrases, time windows, rules), plus contextual quotes/interventions tuned to the conflict at hand.
+* **Capstone-ready architecture:** Multimodal inputs + LLM tagging + time-series smoothing + symbolic rules = rich ground across Intelligent Sensing, Pattern Recognition, Reasoning, and Architecting AI Systems.
+
+# How it works
+
+## **System loop**
+
+1. **Perception:** Speech-to-text (or typed input) flows through an LLM that tags values, identity claims, sentiment, intent, and direction-of-travel.
+2. **Memory:** Tags incrementally update a decay-aware user profile/knowledge base (value weights, goals, tensions, evidence snippets) instead of resetting each week.
+3. **Reasoning + action:** A two-stage evaluative layer powered by the **[Value Identity Function (VIF)](Ideas/Feat_vif.md)**:
+   * **Critic (VIF):** A numeric, uncertainty-aware engine that computes per-value-dimension alignment scores from a sliding window of recent entries. Uses LLM-as-Judge for reward modeling and MC Dropout for epistemic uncertainty. Triggers critiques only when confident and detecting significant patterns (sudden crashes or chronic ruts).
+   * **Coach:** Activated after the Critic identifies problematic dimensions. Uses retrieval-augmented generation (RAG) over the user's full journal history to surface thematic evidence, explain *why* misalignment occurred, and offer reflective prompts or "micro-anchors."
+
+## **Product principles**
+
+* Identity-first mini-assessment (“build your inner compass” via 3–5 quick screens of big, tappable cards and tradeoffs) before daily journaling.
+* Longitudinal honesty engine that gently says “you keep claiming X but living Y.”
+* Quotes/prompts are precision interventions tied to observed conflicts.
+* Voice-first UI because people are most candid speaking alone; text stays for search/digests.
+
+## **Onboarding mini-assessment (cold start)**
+
+* 3–5 screen “build your inner compass” quiz with large, tappable cards and a clear progress indicator.
+* First split on persona (e.g., student/young adult/mid-career), then on the live tension (overwork vs health, family guilt, creative stagnation).
+* Use forced trade-offs and simple rankings (e.g., protect sleep vs ship the project) to sharpen value weights instead of “select all that apply.”
+* Map each answer to latent dimensions (life stage, primary domain of concern, self-compassion vs self-criticism, comfort with challenge, time horizon) rather than a brittle tree of screens.
+* Show tiny mirrors mid-flow (“you sound like a mission-driven overcommitter who cares a lot about family—does this feel roughly right?”) so users can quickly correct the model.
+* End with an optional 30–60s voice note (If you have 30–60 seconds, tell me about a week you were proud or ashamed of) for rich colour when users are willing, without forcing interviews.
+* Use the mini-assessment output to choose initial prompt tone, starter tensions to watch, and example scenarios in the first digest, and instrument responses so future iterations can merge/split branches and swap underperforming cards.
+
+This mini-assessment directly anchors the capstone submodules: the latent dimensions form named slots in the knowledge base and rule layer (**Intelligent Reasoning Systems**), the mapping from taps/voice to those dimensions plus later corrections is a compact supervised modelling task (**Pattern Recognition Systems**), the voice note acts as a multimodal sensor beyond the UI taps (**Intelligent Sensing Systems**), and treating the quiz as just one input stream into a shared user-state vector `z` illustrates end-to-end orchestration and state management across Perception → Memory → Reasoning → Action (**Architecting AI Systems**).
+
+## **Core Feature Modules**
+
+* **Weekly alignment coach:** Batch entries, run the reasoning engine, ship a 1-page digest (Pattern Recognition + Reasoning).
+* **Conversational introspection agent:** Live mirroring via agent loop (Perception → Cognition → Action) to highlight contradictions mid-conversation.
+* **[Adaptive Acoustic Sensor (A3D)](A3D.md):** A privacy-first, unsupervised anomaly detection system that learns the user's unique prosodic baseline to flag physiological stress and cognitive dissonance (Intelligent Sensing + Pattern Recognition).
+* **“Map of Me”:** Embed each entry, visualise trajectories, overlay alignment scores (Pattern Recognition + Intelligent Sensing).
+* **Journaling anomaly radar:** After 2–3 weeks of entries establish cadence baselines, a lightweight time-series/anomaly detector tracks check-in gaps, flags “silent weeks,” cites evidence windows, and triggers empathetic nudges (Pattern Recognition + Architecting).
+* **Goal-aligned inspiration feed:** When the profile shows intent (e.g., “pick up Japanese”) but no supporting activities, call a real-time search API (SerpAPI/Tavily) constrained by what the user enjoys (e.g., highly rated anime) and reason over the results before surfacing next-step suggestions (Intelligent Reasoning + Intelligent Sensing). Each curated option is presented as an explicit choice; the user’s accept/decline actions feed back into the values/identity graph so future nudges learn which media or effort types actually motivate them.
+
+**Implementation path**
+
+1. Frame the research question (“How do we sustain a dynamic model of values/identity and reflect alignment?”) and map subsystems to submodules.
+2. Define the MVP loop: mini-assessment (3–5 screen quiz)
+3. **Scoping Strategy:** Adopt a **Hybrid Approach** (Simple journaling loop + weekly digest + lightweight trajectory viz). Build small slices of each feature to demonstrate breadth without over-building.
+4. Specify the profile schema:
+   * **Value dimensions** (K dimensions, e.g., Health, Relationships, Growth, Contribution) with definitions, rubrics, and examples.
+   * **User value profile:** vector of value weights `w_u ∈ ℝ^K` (normalized, sum to 1), plus narrative descriptions and constraints.
+   * **State representation:** sliding window of N recent entry embeddings + time deltas + history stats (EMA of per-dimension alignment, rolling std dev, entry counts).
+5. Implement **Reward Modeling (LLM-as-Judge):** For each entry, LLM outputs per-dimension alignment scores (Likert scale normalized to [-1,1]) with rationales and optional confidence scores. Use synthetic personas for initial training/validation.
+6. Tooling: start with API LLM for tagging + reflection, add lightweight classifiers later if needed; keep reasoning layer explainable for XRAI.
+7. Evaluation plan: combine Likert feedback on "felt accurate?" with inter-rater agreement on value tags and stability metrics for the profile.
+8. Instrument the inspiration feed so each recommendation decision (accept/reject/ignore) is stored as structured evidence linked to values, identities, and interest embeddings, enabling closed-loop personalization.
+
+| Component | Traditional Journaling (Summarizer) | Twinkl (Alignment Engine) |
+| :--- | :--- | :--- |
+| **Process** | **1. Tagging:** Identifies sentiment and topics.<br>• Entry 1: Negative, Work<br>• Entry 2: Guilt, Health<br>• Entry 3: Positive, Partner<br>**2. Aggregation:** Groups these tags together. | **1. Reasoning:** Compares entries *against* the Self-Model.<br>• Entry 1 → **Matches** Priority 1 = **Expected Friction**<br>• Entry 2 → **Conflicts with** Value 1 = **Misalignment**<br>• Entry 3 → **Matches** Value 2 = **Alignment** |
+| **Question it Answers** | **"What have I been feeling/talking about?"** | **"Am I living in line with what I *said* I value?"** |
+| **Final Output (Insight)** | A high-level summary: "This week, your mood was primarily **stressed** and **guilty**. Your main topics were **'Work'** and the **'Gym'**. A dinner with your **'Partner'** was a positive moment." | An evidence-based alignment report:<br>**1. Alignment (Partner):** You honored your 'Partnership' value. (Evidence: *'nice dinner...'*)<br>**2. Misalignment (Health):** You broke your 'Health' value. (Evidence: *'Skipped the gym...'*)<br>**Prompt:** Your 'Work' priority is creating high stress, just as you expected, but it is now in conflict with your 'Health' value. Is this an acceptable trade-off for this week?" |
+| **Core Concept** | **Retrospective Summarization** | **Prospective Accountability** |
+
+**Twinkl’s edge**
+
+* **Structured self-model:** Onboarding + ongoing speech build a knowledge base of values, goals, tensions, and identity themes that evolves with decay-aware updates.
+* **Alignment engine:** Weekly reasoning compares lived behaviour vs. declared priorities, surfaces tensions, and cites evidence snippets—turning “you said X but did Y” into actionable prompts.
+* **Explainable accountability:** Every nudge shows why (phrases, time windows, rules), plus contextual quotes/interventions tuned to the conflict at hand.
+* **Capstone-ready architecture:** Multimodal inputs + LLM tagging + time-series smoothing + symbolic rules = rich ground across Intelligent Sensing, Pattern Recognition, Reasoning, and Architecting AI Systems.
+
+
+
+
+
+# Potential Stretch goals
+
+| Goal | Why it matters |
+| :--- | :--- |
+| **Neuro-symbolic reasoning** | Add a tiny knowledge graph + rule layer on top of LLM outputs to show which logical checks fired (great for XRAI storytelling). |
+| **Multimodal fusion** | Blend text + [prosodic audio cues](A3D.md) to prove Intelligent Sensing value beyond transcripts. |
+| **Personalised quote recommender** | Build embeddings of quotes + user resonance to deliver “micro-anchors” tuned to each identity conflict. |
+| **Distilled Reward Model** | Train a smaller supervised model to mimic LLM-as-Judge, reducing latency and cost while enabling offline VIF training. |
+| **Advanced uncertainty modeling** | Extend MC Dropout with ensembles or density models; add explicit OOD detectors on the text embedding space. |
+| **Tiered VIF implementation** | Progress from Tier 1 (immediate alignment) → Tier 2 (short-horizon forecast) → Tier 3 (time-aware discounted returns). See [VIF design](Ideas/Feat_vif.md). |
+
+# Features that tie back to Masters' submodules
+
+| Submodule                         | Features in Twinkl                                                                                                                                                                                                                  |
+| :-------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Intelligent Reasoning Systems** | Formal value/goal knowledge base + decay rules cover knowledge representation; a hybrid reasoning layer mixes LLM inference with symbolic “if value X high but mentions drop Y weeks → flag misalignment” rules, and the inspiration feed performs decision-theoretic ranking (with uncertainty-aware scoring) of real-time search hits plus logged user accept/reject choices. |
+| **Pattern Recognition Systems**   | Transformer tagging for sentiment/topics, sequential models for cadence baselines, clustering/trajectory viz (“Map of Me”) to detect seasons, and anomaly detection that spots journal absences while continuously re-learning from the recommendation-choice dataset. |
+| **Intelligent Sensing Systems**   | [Voice features (pitch, tempo, MFCC)](A3D.md) fused with text cover multimodal signal processing; the real-time search layer acts as an external “sensor” that ingests up-to-date cultural/learning stimuli, and choice telemetry becomes another sensed signal that is fused with identity/value embeddings. |
+| **Architecting AI Systems**       | Agentic loop (Perception → Memory → Reasoning → Action), explainable feedback via XRAI, privacy-first storage of sensitive logs, and orchestration of background workers that run anomaly checks, call external APIs, and write preference updates while following MLSecOps guardrails. |
+
+# Evaluation Strategy
+
+To ensure Twinkl delivers on its promise of "alignment" rather than just "summary," we evaluate each subsystem against ground-truth benchmarks and proxy datasets.
+
+| # | Component | Evaluation Goal | Datasets & Method | Metrics & Justification |
+| :--- | :--- | :--- | :--- | :--- |
+| 1 | **Emotion & theme extraction** | Map journal text → emotions, topics | **Datasets:** GoEmotions (58k comments, 27 emotions) or Lemotif-style datasets.<br>**Method:** Pretrain/fine-tune multi-label classifiers or use constrained LLM prompts to tag entry → emotion/topic. | **Macro/micro F1 & per-class F1** (multi-label classification), plus confusion matrices. Standard for imbalanced emotion datasets to compare architectures. |
+| 2 | **Value & identity modeling** | Map text history → value vector (Schwartz values) | **Method:** Anchor the "inner compass" in Schwartz’s theory of basic human values (Self-Direction, Benevolence, Achievement, etc.). Use synthetic personas to generate history and ground-truth value profiles.<br>**Reasoning:** Schwartz values are cross-cultural and validated, providing a stable ontology for "drift." | **Correlation (Pearson/Spearman)** between predicted and ground-truth value importance. Captures how well the model recovers the *shape* and ranking of a user's value profile. |
+| 3 | **Alignment & drift detection (VIF)** | Detect when behavior diverges from values; estimate per-dimension alignment trajectories | **Method:** Build synthetic user timelines with known value vectors and inject "misaligned weeks" (e.g., family-first persona describes 80h work week). Train VIF critic (MLP regressor) on LLM-as-Judge labels. Evaluate crash/rut detection on held-out trajectories.<br>**Uncertainty calibration:** Verify that MC Dropout variance correlates with prediction error on OOD inputs. | **Per-dimension MSE & correlation** between VIF predictions and LLM-as-Judge scores.<br>**Crash/rut detection:** AUC, Precision, Recall for dual-trigger rule.<br>**Ranking consistency:** Does VIF correctly order weeks by misalignment severity? |
+| 4 | **Explanation quality** | Generate "why you are aligned/misaligned" narratives | **Method:** Create "gold rationales" for synthetic weeks. Use LLM-as-a-judge to score Twinkl's explanations on correctness, specificity, and usefulness.<br>**Human-in-the-loop:** Small-N human ratings using health chatbot rubrics. | **LLM-as-a-judge scores (0–5)**.<br>**Human Likert ratings** + **Inter-rater κ**. Verifies that explanations are not just plausible but psychologically valid. |
+| 5 | **Recommender / Nudge** | Choose the next reflection question | **Method:** Create synthetic user states (current profile + recent behavior) and rank a catalog of reflection questions.<br>**Ground Truth:** Label questions as "highly relevant / okay / irrelevant" for each state. | **Ranking metrics:** Hit Rate@k, NDCG@k, Precision/Recall@k. Standard for evaluating if the system puts the most useful reflection at the top. |
+
+## Operational & User Success Metrics
+
+| Category | Metrics |
+| :--- | :--- |
+| **User impact** | Likert ratings on “helps me act in line with values,” % of suggested weekly experiments attempted, retention over a 1–2 week pilot. |
+| **System & safety** | Latency from recording → feedback, STT/LLM failure rates, privacy posture (encryption, export/delete), and qualitative review of guardrails for “it’s not therapy” messaging. |
+
+Mini user study (5–10 people over 1–2 weeks) + inter-rater agreement between humans and the model validates both the knowledge base stability and perceived usefulness.
+
+# ISS-Practice-Module: The Adaptive Acoustic Anomaly Detector (A3D)
+
+> See [A3D.md](A3D.md) for full documentation of this Semester 3 module.
+
