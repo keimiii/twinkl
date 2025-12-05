@@ -165,49 +165,41 @@ For real users, we do not observe:
 
 We only observe **text and signals**. To bridge this, we explicitly introduce a **Reward Model**.
 
-### 4.2 LLM-as-Judge (Likert Protocol)
+### 4.2 The Generator-Judge-Critic Workflow (Teacher-Student Architecture)
 
-We use a large language model (LLM) as a **judge**. To avoid false precision (e.g., "0.2 vs 0.3" noise), we constrain the LLM to a **5-point ordinal scale** and map it to integers for the VIF math.
+To handle the complexity of real-life trade-offs (e.g., sacrificing sleep for work) while enabling efficient uncertainty estimation, we adopt a **Knowledge Distillation** approach.
 
-For each time step $(u,t)$, the LLM is given the journal text $T_{u,t}$, the user’s profile $z_u$, and rubrics for the $K$ value dimensions.
+This workflow transforms rich but slow LLM reasoning into a fast, uncertainty-aware numerical signal.
 
-#### 4.2.1 The Protocol
+#### 4.2.1 Phase 1: Synthesis (The Generator)
+We use an LLM to generate a diverse dataset of synthetic journal entries.
+*   **Goal:** Create "messy," realistic data that reflects genuine human conflict, not just clean archetypes.
+*   **Prompt Strategy:** Instead of asking for "A bad health entry," we ask for scenarios involving specific tensions, e.g., *"Write an entry from a user who is proud of their work achievement but is neglecting their physical needs to get there."*
 
-1. **Prompt**: The LLM classifies the user's behavior for each value dimension $j$ into one of 5 buckets:
+#### 4.2.2 Phase 2: Labeling (The Judge / Teacher)
+We feed the generated text into a second LLM pass (The Judge) to assign ground-truth scores.
+*   **Why this is needed:** A user entry often impacts multiple values simultaneously (Side Effects). The Generator prompt might target "Work," but the resulting text might inadvertently reveal neglect of "Family."
+*   **Mechanism (Likert Protocol):** To avoid subjective noise (e.g., arbitrary "4.5" vs "4.2"), the Judge classifies behavior using a strict 5-point rubric:
+    *   **Strong Misalignment (-2):** User actively acted against the value.
+    *   **Misalignment (-1):** User neglected the value or made excuses.
+    *   **Neutral (0):** No relevant information or maintenance mode.
+    *   **Alignment (+1):** User took small positive steps or expressed clear intent.
+    *   **Strong Alignment (+2):** User made a significant sacrifice or effort for this value.
+*   **Output:** These classifications are mapped to a precise integer vector, e.g., `[Health: -2, Career: +2, Family: -1]`, which serves as the regression target for the Student.
 
-   * **Strong Misalignment**: User actively acted against the value.
-   * **Misalignment**: User neglected the value or made excuses.
-   * **Neutral**: No relevant information or maintenance mode.
-   * **Alignment**: User took small positive steps or expressed clear intent.
-   * **Strong Alignment**: User made a significant sacrifice or effort for this value.
+#### 4.2.3 Phase 3: Distillation (The Critic / Student)
+We train the **MLP Critic** (the VIF) on this labeled dataset.
+*   **Input:** Text Embedding (SBERT) + User Profile Embedding.
+*   **Target:** The Judge's vector scores.
+*   **Benefit:**
+    1.  **Speed:** The MLP runs in milliseconds, enabling the 50+ forward passes required for MC Dropout.
+    2.  **Privacy:** The MLP can potentially run locally or with lower privacy overhead than a full LLM call.
 
-2. **Integer Mapping**: We map these labels to discrete integers $\hat{a}_{u,t}^{(j)}$:
-
-   * Strong Misalignment $\rightarrow$ **-2**
-   * Misalignment $\rightarrow$ **-1**
-   * Neutral $\rightarrow$ **0**
-   * Alignment $\rightarrow$ **+1**
-   * Strong Alignment $\rightarrow$ **+2**
-
-3. **Output Vector**:
-   The VIF operates on the resulting vector of integers:
-
-   $$
-   \hat{\vec{a}}_{u,t} = \big(\hat{a}_{u,t}^{(1)}, \dots, \hat{a}_{u,t}^{(K)}\big)
-   $$
-
-   While individual entries are integers, the **sliding window averages** and **trajectories** (calculated over time) become continuous floating-point values, preserving the gradient needed for tracking improvement or decline.
-
-To reduce normative bias, prompts are explicitly framed to judge **alignment relative to the user’s stated values and trade-offs**, not any external cultural or moral standard.
-
-### 4.3 Label Quality and Synthetic Data
-
-In early stages, we may use **synthetic personas and trajectories** where ground-truth per-dimension alignment is known, and the LLM-as-Judge is used for comparison and distillation. Later, for real user data, LLM labels form a noisy but useful signal.
-
-To characterise label noise and calibration:
-
-* On a subset of entries, run the judge multiple times or with slight prompt variations to estimate label variance.
-* Optionally, incorporate this variance or self-reported confidence into the critic’s loss as weights.
+### 4.3 Uncertainty Gating
+By using the MLP as the live Critic, we unlock **Epistemic Uncertainty** estimation via MC Dropout (see Section 7).
+*   If the MLP's 50 predictions cluster tightly (Low Variance), we trust the score.
+*   If the MLP's predictions scatter widely (High Variance), it means the input is **Out-of-Distribution** (unlike anything the Judge taught it).
+    *   *Action:* The system suppresses the critique and instead triggers the Coach to ask a clarifying question ("I'm sensing some complexity here...").
 
 ---
 
@@ -446,6 +438,17 @@ To implement crash and rut logic robustly:
 * VIF outputs can be aggregated to **weekly averages** per dimension.
 * Crash/rut detection operates on these weekly aggregates, not raw per-entry values.
 * $C_t^{(j)}$ is then defined over weeks, making “three weeks in a rut” a natural threshold.
+
+### 7.5 Alternative Uncertainty Methods (Comparison)
+
+While MC Dropout is chosen for the Tier 1 POC due to its implementation simplicity, other methods exist and may be appropriate for production systems.
+
+| Method | Pros | Cons | Best For |
+| :--- | :--- | :--- | :--- |
+| **MC Dropout** (Chosen for POC) | • Zero extra code complexity.<br>• No storage overhead.<br>• "Good enough" epistemic uncertainty. | • Requires multiple forward passes (inference latency).<br>• Calibration can be sensitive to dropout rate. | **Academic POCs & MVP** where dev speed > perfect calibration. |
+| **Deep Ensembles** | • Gold standard for accuracy & calibration.<br>• Handles both aleatoric & epistemic well. | • High compute/storage cost (train & store 5+ models). | **High-budget Production** where reliability is paramount. |
+| **Deep Evidential Regression** | • Fast (single forward pass).<br>• Disentangles uncertainty types explicitly. | • Custom loss functions can be unstable to train.<br>• Harder to implement. | **Low-latency Production** apps on mobile/edge. |
+| **Conformal Prediction** | • Provides statistical **guarantees** (e.g., "90% confidence interval").<br>• Model-agnostic. | • Requires separate calibration dataset.<br>• Focuses on intervals, not just scalar uncertainty. | **Safety-Critical Systems** (Medical/Finance) needing strict bounds. |
 
 ---
 
