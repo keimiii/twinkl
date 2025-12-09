@@ -22,7 +22,7 @@ Crucially, the VIF is designed to be:
 *   **Cautious:** It knows when it's unsure. If the user's situation is complex or new, the VIF holds back its judgment rather than giving bad advice.
 *   **Time-Aware:** It looks for patterns, not just snapshots. One bad day isn't a crisis, but a three-week slide is.
 
-This engine powers the "Tension Surfacing" feature, flagging these drifts so the Coach (the conversational AI) can gently bring them up.
+This engine powers Twinkl's feedback system: flagging drifts so the Coach (the conversational AI) can gently surface tensions, and recognizing sustained alignment so the Coach can offer occasional evidence-based acknowledgment.
 
 ---
 
@@ -45,10 +45,10 @@ The VIF is designed to:
 2. **Vector-valued evaluation**
    Alignment is evaluated in **multiple value dimensions** (e.g. Health, Relationships, Growth, Contribution). The value function remains **vector-valued** to preserve tensions and trade-offs, and is only aggregated when needed.
 
-3. **Uncertainty-aware critique**
-   The system estimates **epistemic uncertainty** in its predictions and only issues strong critiques when it is both:
+3. **Uncertainty-aware feedback**
+   The system estimates **epistemic uncertainty** in its predictions and only issues feedback when it is both:
    * Confident in its judgment, and
-   * Detecting a significant negative pattern.
+   * Detecting a significant pattern (negative or positive).
 
 4. **Trajectory-aware, not purely Markovian**
    The VIF explicitly incorporates **recent temporal history** (sliding windows and simple statistics) instead of assuming that a single entry and static profile fully determine future trajectories.

@@ -44,14 +44,15 @@ AI journaling apps (Reflection, Mindsera, Insight Journal, Day One, Pixel Journa
 2. **Memory:** Tags incrementally update a decay-aware user profile/knowledge base (value weights, goals, tensions, evidence snippets) instead of resetting each week.
 3. **Reasoning + action:** A two-stage evaluative layer powered by the **[Value Identity Function (VIF)](Ideas/VIF_01_Concepts_and_Roadmap.md)**:
    * **Critic (VIF):** A numeric, uncertainty-aware engine that computes per-value-dimension alignment scores from a sliding window of recent entries. Uses [LLM-as-Judge for reward modeling](Ideas/VIF_03_Model_Training.md) and [MC Dropout for epistemic uncertainty](Ideas/VIF_04_Uncertainty_Logic.md). Triggers critiques only when confident and detecting significant patterns (sudden crashes or chronic ruts).
-   * **Coach:** Activated after the Critic identifies problematic dimensions. Uses retrieval-augmented generation (RAG) over the user's full journal history to surface thematic evidence, explain *why* misalignment occurred, and offer reflective prompts or "micro-anchors." (See [System Architecture](Ideas/VIF_02_System_Architecture.md)).
+   * **Coach:** Activated when the Critic identifies significant patterns — whether problematic (crashes, ruts) or positive (sustained alignment). Uses retrieval-augmented generation (RAG) over the user's full journal history to surface thematic evidence, explain *why* misalignment occurred, and offer reflective prompts or "micro-anchors." For positive patterns, provides occasional evidence-based acknowledgment without gamification. (See [System Architecture](Ideas/VIF_02_System_Architecture.md)).
 
 ## **Product principles**
 
-* Identity-first mini-assessment (“build your inner compass” via 3–5 quick screens of big, tappable cards and tradeoffs) before daily journaling.
-* Longitudinal honesty engine that gently says “you keep claiming X but living Y.”
+* Identity-first mini-assessment ("build your inner compass" via 3–5 quick screens of big, tappable cards and tradeoffs) before daily journaling.
+* Longitudinal honesty engine that gently says "you keep claiming X but living Y."
 * Quotes/prompts are precision interventions tied to observed conflicts.
 * Voice-first UI because people are most candid speaking alone; text stays for search/digests.
+* Evidence-based reinforcement, not gamification: when users sustain alignment with their values, the system acknowledges it by citing specific behaviors and connecting them to the user's own words — never through streaks, points, leaderboards, or generic praise. Positive feedback is infrequent (only when patterns emerge) and grounded in what the user actually wrote.
 
 ## **Onboarding mini-assessment (cold start)**
 

@@ -102,10 +102,11 @@ For a real user session:
    * Run VIF with MC Dropout to get $\\mu_{u,t}^{(j)}$ and $\\sigma_{u,t}^{(j)}$ per dimension. (See [Uncertainty Logic](VIF_04_Uncertainty_Logic.md))
 5. **Aggregate over time**:
    * Compute updated weekly aggregates (e.g. weekly means of $\\mu_{u,t}^{(j)}$).
-6. **Apply dual-trigger critique rule**:
+6. **Apply trigger rules**:
    * If significant weekly drop (crash) and low uncertainty → generate a targeted critique.
    * If sustained low weekly values for $\ge C_{\text{min}}$ weeks (rut) and low uncertainty → generate a targeted critique.
-   * If high uncertainty → generate a clarifying prompt instead of a critique.
+   * If sustained high values over multiple weeks and low uncertainty → generate occasional evidence-based acknowledgment.
+   * If high uncertainty → generate a clarifying prompt instead of a critique or acknowledgment.
 
 ### 2.2 Separation of Concerns: Critic vs Coach
 
@@ -117,10 +118,11 @@ We explicitly separate two memory and reasoning systems:
    * Focus: estimate current/short-horizon alignment per dimension and uncertainty.
 
 2. **Coach / Explanation Layer** – Thematic, retrieval-augmented guide
-   * Activated after the VIF identifies which dimensions are problematic (crash or rut).
-   * Uses **retrieval-augmented generation (RAG)** over the user’s longer-term journal history to:
-     * Retrieve thematically relevant entries (e.g. similar conflicts, repeated patterns).
-     * Provide context-rich explanations and reflective prompts.
+   * Activated after the VIF identifies significant patterns — whether problematic (crash or rut) or positive (sustained alignment).
+   * Uses **retrieval-augmented generation (RAG)** over the user's longer-term journal history to:
+     * Retrieve thematically relevant entries (e.g. similar conflicts, repeated patterns, or evidence of consistent alignment).
+     * Provide context-rich explanations, reflective prompts, or evidence-based acknowledgment.
+   * For positive patterns, acknowledgment is infrequent and grounded in specific behaviors — never gamified (no streaks, points, or generic praise).
    * Retrieval is based on **semantic similarity**, not recency, to support pattern recognition and narrative insight.
 
 This separation ensures that:

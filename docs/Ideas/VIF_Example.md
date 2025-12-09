@@ -87,25 +87,41 @@ Sarah has been journaling for a month. Here's this week's entry:
 | Generator | N/A | Only used during offline training |
 | Judge | N/A | Critic is confident; no need to escalate |
 | Critic | **ACTIVE** | Scores entry against Sarah's two values |
-| Coach | N/A | No tension detected; nothing to surface |
+| Coach | **ACTIVE** (occasional) | Offers evidence-based acknowledgment |
 
 ### Critic's Processing
 
 **Input:** SBERT embedding of journal entry + Sarah's profile
 **Output:** Scores only for Sarah's declared values
 
+**This Week's Scores:**
+
 | Value | Score | Uncertainty (σ) | Interpretation |
 |-------|-------|-----------------|----------------|
 | Benevolence | +1.8 | 0.2 (low) | Strong alignment — prioritized Emma, fully present |
 | Self-Direction | +1.1 | 0.3 (low) | Alignment — creative work with energy and ownership |
 
-**Trajectory Check:**
-- Benevolence: 4-week average = +1.5 → stable
-- Self-Direction: 4-week average = +1.2 → stable
+**Trajectory Check (4-week rolling averages):**
+- Benevolence: +1.5 → stable
+- Self-Direction: +1.2 → stable
 - No crash (no sudden drop)
 - No rut (not below threshold)
 
-**System Decision:** Silent. Sarah is living according to her values.
+**System Decision:** Occasional reinforcement. Sarah has shown sustained alignment — worth acknowledging.
+
+### Coach's Response
+
+> "Something I noticed: you wrote about taking Friday off for Emma, and then returning to your design work feeling refreshed. That's the third time this month you've found a way to be present for her without sacrificing your creative energy.
+>
+> You're living what you told me matters."
+
+**What the Coach does NOT say:**
+- "You're on a 4-week streak!" (gamification)
+- "Great job! Keep it up!" (generic praise)
+- "You earned 50 alignment points!" (rewards/scores)
+- "You're doing better than 80% of users!" (comparison)
+
+The reinforcement is *evidence-based* (cites specific behavior), *tied to the user's own words* (references what Sarah said matters), and *infrequent* (not every entry — only when sustained patterns emerge).
 
 ---
 
@@ -128,12 +144,14 @@ Sarah's situation changes. A major client pitch consumes her.
 
 ### Critic's Processing
 
+**This Week's Scores:**
+
 | Value | Score | Uncertainty (σ) | Interpretation |
 |-------|-------|-----------------|----------------|
 | Benevolence | -1.7 | 0.25 (low) | Strong misalignment — missed key moment, acknowledged pattern |
 | Self-Direction | +0.3 | 0.4 (low) | Neutral — work is obligation-driven, not creative expression |
 
-**Crash Detection:**
+**Crash Detection (comparing to rolling average):**
 - Benevolence previous average (weeks 5-6): +1.3
 - Benevolence current: -1.7
 - **Drop: 3.0 points** → exceeds crash threshold (δ = 1.5)
@@ -192,6 +210,16 @@ The pitch succeeded, but Sarah doesn't bounce back. Her entries become flat:
 - Uncertainty: Low across all weeks
 - **Rut confirmed**
 
+**About These Thresholds:**
+
+| Parameter | Who Sets It | Rationale |
+|-----------|-------------|-----------|
+| **τ (low threshold)** | Developer default, potentially user-adjustable | Set per value dimension. Default τ = -0.5 means "mildly misaligned." Users with high self-compassion might prefer τ = -0.8 (only flag severe dips); stricter users might want τ = -0.3. |
+| **C_min (minimum weeks)** | Developer default | System-wide. 3 weeks balances sensitivity (catching real ruts) vs. specificity (ignoring normal fluctuations). Shorter risks false alarms; longer delays intervention. |
+| **Uncertainty threshold (ε)** | Algorithm (calibrated) | Derived from model calibration on held-out data. Not user-facing — ensures the system only speaks when confident. |
+
+For the full mathematical formulation of crash/rut detection and uncertainty gating, see [Uncertainty & Critique Logic](VIF_04_Uncertainty_Logic.md).
+
 **System Decision:** Trigger Coach.
 
 ### Coach's Response
@@ -223,15 +251,18 @@ Something happens outside the Critic's training distribution.
 
 ### Critic's Processing
 
+**This Week's Scores:**
+
 | Value | Score | Uncertainty (σ) | Interpretation |
 |-------|-------|-----------------|----------------|
 | Benevolence | ??? | 1.4 (HIGH) | Predictions scatter from -1 to +2 |
 | Self-Direction | ??? | 1.1 (HIGH) | Predictions scatter from -2 to +1 |
 
 **Why High Uncertainty?**
-- The Critic was trained on work-life tensions, daily routines, small wins and setbacks
-- Parental terminal illness is out-of-distribution
-- MC Dropout reveals the model doesn't know how to score this
+- The Critic is trained on synthetic data from the Generator (see [Model Training](VIF_03_Model_Training.md))
+- The Generator produces diverse value tensions, but likely doesn't cover acute grief or trauma scenarios — these are difficult to synthesize authentically and ethically fraught to "score"
+- Parental terminal illness is therefore out-of-distribution
+- MC Dropout reveals the model doesn't know how to score this — predictions scatter widely across forward passes
 
 **System Decision:** Suppress scores. Do not trigger crash/rut logic. Coach responds differently.
 
@@ -254,9 +285,9 @@ Something happens outside the Critic's training distribution.
 |-------|-----------|-------|--------|-------|
 | Offline Training | ✅ Creates data | ✅ Labels data | ✅ Trains | — |
 | Onboarding | — | — | — | ✅ Captures values |
-| Stable Alignment | — | — | ✅ Scores | — |
+| Stable Alignment | — | — | ✅ Scores | ✅ Occasional acknowledgment |
 | Crash Detected | — | — | ✅ Flags drop | ✅ Surfaces tension |
 | Rut Detected | — | — | ✅ Flags pattern | ✅ Invites reflection |
 | High Uncertainty | — | (optional) | ✅ Admits uncertainty | ✅ Offers presence |
 
-Key insight: The Generator and Judge do their work *before* any user arrives. The Critic handles the real-time evaluation. The Coach only speaks when there's something worth saying.
+Key insight: The Generator and Judge do their work *before* any user arrives. The Critic handles the real-time evaluation. The Coach speaks when there's something worth saying — including occasional evidence-based acknowledgment when users sustain alignment, but never through gamification or generic praise.
