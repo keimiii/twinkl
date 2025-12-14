@@ -52,12 +52,26 @@ These elaborations are injected into prompts to help the LLM generate psychologi
 **JournalEntryResult** (metadata tracked separately):
 - entry, tone, verbosity, reflection_mode (Unsettled/Grounded/Neutral)
 
+**PersonaPipelineResult** (complete output from one persona's generation):
+- persona_id, persona, entries (list of JournalEntryResult)
+- persona_prompt, entry_prompts (captured for debugging/display)
+- error (if generation failed)
+
 ## Generation Pipeline
 
+The pipeline uses **async/await** for efficient I/O and supports **parallel persona generation**.
+
+**Per-persona pipeline** (sequential within each persona):
 1. **Persona creation**: Random sampling from config + LLM generation with value context injection
 2. **Date sequence**: Random intervals (2-10 days) between entries
 3. **Longitudinal entries**: Each entry receives previous entries for continuity
 4. **Validation**: Banned terms check to prevent Schwartz label leakage
+
+**Parallel execution** (across personas):
+- Multiple personas run concurrently via `asyncio.gather()`
+- Results return in input order regardless of completion time (Persona 1, 2, 3...)
+- Failed pipelines return exceptions without crashing others (`return_exceptions=True`)
+- All prompts/outputs are buffered and displayed in order after completion
 
 ## Prompt Design
 
@@ -109,9 +123,34 @@ This leaner approach lets journal content emerge organically from persona contex
 ## Technical Notes
 
 - **Model**: gpt-5-mini via OpenAI Responses API
+- **Async client**: `AsyncOpenAI` for non-blocking I/O operations
 - **Reasoning effort**: Configurable (minimal/low/medium/high) - temperature not supported by gpt-5 models
 - **Structured output**: JSON schemas with `strict: True` for reliable parsing
 - **Retry logic**: Up to 2 attempts per generation with validation
+
+### Usage
+
+```python
+# Single persona (await directly in Jupyter)
+result = await generate_persona_pipeline(
+    persona_id=1,
+    config=config,
+    schwartz_config=schwartz_config,
+    num_entries=3,
+    start_date="2023-10-27"
+)
+display_persona_results(result)
+
+# Multiple personas in parallel
+results = await run_parallel_personas(
+    num_personas=3,
+    config=config,
+    schwartz_config=schwartz_config,
+    num_entries=3
+)
+for result in results:
+    display_persona_results(result)
+```
 
 By systematically varying persona profiles and prompts, we obtain a synthetic dataset that covers a broad spectrum of human experiences, crucial for training alignment models that generalize well.
 
