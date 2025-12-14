@@ -43,7 +43,7 @@ journal_entries:
     - "Short (1-3 sentences)"
     - "Medium (1-2 paragraphs)"
     - "Long (Detailed reflection)"
-  value_drift:
-    - "Drift"
-    - "Convergence"
-    - "Unchanged"
+  reflection_mode:
+    - "Unsettled"
+    - "Grounded"
+    - "Neutral"
