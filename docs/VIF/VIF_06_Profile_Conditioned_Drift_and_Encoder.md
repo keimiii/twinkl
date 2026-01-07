@@ -40,7 +40,7 @@ As part of the pipeline from `VIF_05_State_and_Data_Pipeline.md`:
      \mathbf{e}_{u,t} = \phi_{\text{text}}(T_{u,t})
      $$
    - Store these embeddings in an intermediate structure (e.g. an `EntryEmbedding` table).
-2. During state construction, we only read \(\mathbf{e}_{u,t}\) from storage; we do **not** call the encoder again.
+2. During state construction, we only read $\mathbf{e}_{u,t}$ from storage; we do **not** call the encoder again.
 
 This keeps the Critic training loop simple and makes experiments reproducible (fixed encoder, fixed embeddings).
 
@@ -105,8 +105,8 @@ Informally, we say a user is **drifting** when:
 
 The POC implements drift as a set of **deterministic metrics and thresholds** computed on top of:
 
-- The Critic’s alignment estimates \(\hat{\vec{a}}_{u,t}\), and
-- The user’s value weights \(w_u\).
+- The Critic’s alignment estimates $\hat{\vec{a}}_{u,t}$, and
+- The user’s value weights $w_u$.
 
 No additional “drift model” is required for the POC.
 
@@ -148,11 +148,11 @@ V^{\text{scalar}}_{u,t} = w_u^\top \hat{\vec{a}}_{u,t}
 $$
 
 - This is a **profile‑weighted overall alignment score**.
-- We can apply the same weekly averaging / EMA logic used for crash/rut detection to \(V^{\text{scalar}}_{u,t}\).
+- We can apply the same weekly averaging / EMA logic used for crash/rut detection to $V^{\text{scalar}}_{u,t}$.
 
 Example usage:
 
-- A **sustained drop** in the weekly EMA of \(V^{\text{scalar}}_{u,t}\) with low uncertainty
+- A **sustained drop** in the weekly EMA of $V^{\text{scalar}}_{u,t}$ with low uncertainty
   indicates global drift away from what the user values.
 
 ### 3.4 Directional Drift vs. Identity Vector
@@ -205,7 +205,7 @@ For drift detection, we assume access to:
   - The weekly EMA of $\hat{a}^{(j)}_{u,t}$ is below a negative threshold
     (e.g. $< -0.4$) for at least $C_{\text{min}}$ consecutive weeks,
   - And the corresponding uncertainty is low
-    (e.g. weekly average \(\sigma^{(j)}_{u,t} < \sigma_{\text{max}}\)).
+    (e.g. weekly average $\sigma^{(j)}_{u,t} < \sigma_{\text{max}}$).
 
 **Global drift rule** (profile‑conditioned crash):
 
@@ -214,7 +214,7 @@ For drift detection, we assume access to:
   V^{\text{scalar}}_{u,t} = w_u^\top \hat{\vec{a}}_{u,t}
   $$
 - Trigger a **crash** event if:
-  - The weekly EMA drops by more than \(\Delta_{\text{crash}}\) compared to the previous week.
+  - The weekly EMA drops by more than $\Delta_{\text{crash}}$ compared to the previous week.
   - And uncertainty remains below a chosen threshold.
 
 **Directional identity drift rule**:
@@ -244,7 +244,7 @@ As with crash/rut logic in `VIF_02` and `VIF_04`:
 
 - **Frozen Text Encoder**
   - Pretrained sentence encoder (e.g. SBERT‑style).
-  - Used as \(\phi_{\text{text}}(T_{u,t})\); no fine‑tuning in the POC.
+  - Used as $\phi_{\text{text}}(T_{u,t})$; no fine‑tuning in the POC.
 - **Critic (VIF)**
   - Input: full state $s_{u,t}$ including text window, time gaps, history stats, and $w_u$.
   - Architecture: 2–3 layer MLP with ReLU or GELU, dropout on hidden layers.
@@ -260,7 +260,7 @@ This keeps the POC within a **supervised learning + rules** regime, avoiding add
 For future work (not required for the capstone), you could explore:
 
 - A small supervised **drift classifier**:
-  - Input features: aggregated statistics (e.g. weekly means and EMAs of \(\hat{\vec{a}}_{u,t}\), \(V^{\text{scalar}}_{u,t}\), \(\text{cos\_sim}_u\), and \(w_u\)).
+  - Input features: aggregated statistics (e.g. weekly means and EMAs of $\hat{\vec{a}}_{u,t}$, $V^{\text{scalar}}_{u,t}$, $\text{cos\_sim}_u$, and $w_u$).
   - Model: logistic regression or a 1–2 layer MLP.
   - Target: synthetic labels such as “in drift episode / not in drift episode”.
 - **Personalisation layers**:
